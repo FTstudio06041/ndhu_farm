@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>牛隻管理系統</title>
+  <style>
+    @font-face {
+      font-family: 'Minecraft';
+      src: url('https://fonts.cdnfonts.com/s/20444/MinecraftRegular-Bmg3.otf') format('opentype');
+    }
+
+    body {
+      font-family: 'Minecraft', Arial, sans-serif;
+      background-image: url('img/fm.jpg');
+      background-color: #ffffff;
+      background-size: cover;
+      background-repeat: no-repeat;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 80px;
+      color: #ffffff;
+      margin: 50px 0 20px 0;
+    }
+
+    .outer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: 1200px;
+      gap: 20px;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .adjust-container, #results {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      flex: 1;
+      max-width: 500px;
+      font-size: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .adjust-container h2, #results h2 {
+      font-size: 50px;
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+
+    .slider-container {
+      display: block; 
+      width: 500px;
+      max-width: 800px; 
+      margin: 0 auto; 
+    }
+
+    .slider-container label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333333;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .slider-container input[type="range"] {
+      width: 500px;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 12px;
+      border-radius: 6px;
+      background: #1d4602;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider-container input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #ffffff;
+      border: 2px solid #1d4602;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    button {
+      padding: 15px 20px;
+      background-color: #1d4602;
+      border: none;
+      border-radius: 5px;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 20px;
+      align-self: center;
+    }
+
+    button:hover {
+      background-color: #5da773;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 2px solid #1d4602;
+      padding: 10px;
+      text-align: center;
+      background: #ffffff;
+      color: #333333;
+      font-size: 20px;
+    }
+
+    th {
+      background-color: #5da773;
+      font-weight: bold;
+    }
+
+    #results h3 {
+      text-align: center;
+      margin-top: 0;
+      color: #1d4602;
+      font-size: 50px;
+    }
+
+    .back-arrow {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 30px;
+      height: 30px;
+      border-left: 5px solid rgb(255, 255, 255);
+      border-bottom: 5px solid rgb(255, 255, 255); 
+      transform: rotate(45deg);
+    }
+
+    .back-arrow:hover {
+      border-left-color: #555; 
+      border-bottom-color: #555; 
+    }
+  </style>
+</head>
+<body>
+  <div class="back-arrow" onclick="window.location.href='index.html'"></div>
+  <div class="title">牛隻管理系統</div>
+  <div class="outer-container">
+    <div class="main-container">
+      <div class="adjust-container">
+        <h2>數值調整</h2>
+        <div class="slider-container">
+          <label>生育時間/年：<span id="mDisplay">2</span></label>
+          <input id="m" type="range" min="1" max="5" value="2">
+        </div>
+
+        <div id="initCattle"></div>
+
+        <div class="slider-container">
+          <label>預測年數：<span id="yDisplay">10</span></label>
+          <input id="y" type="range" min="1" max="20" value="10">
+        </div>
+
+        <button onclick="calculateCattlePopulation()">計算牛隻數量</button>
+      </div>
+
+      <div id="results">
+        <h2>預測結果</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>年份</th>
+              <th>牛隻數量</th>
+            </tr>
+          </thead>
+          <tbody id="resTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const maturityYears = document.getElementById('m');
+    const totalYears = document.getElementById('y');
+    const maturityYearsDisplay = document.getElementById('mDisplay');
+    const totalYearsDisplay = document.getElementById('yDisplay');
+    const initialCattleContainer = document.getElementById('initCattle');
+
+    totalYears.addEventListener('input', () => totalYearsDisplay.textContent = totalYears.value);
+    maturityYears.addEventListener('input', updateInitialCattleInputs);
+
+    function updateInitialCattleInputs() {
+      const years = parseInt(maturityYears.value);
+      maturityYearsDisplay.textContent = years;
+
+      initialCattleContainer.innerHTML = '';
+      for (let year = 1; year <= years; year++) {
+        const div = document.createElement('div');
+        div.className = 'slider-container';
+
+        const label = document.createElement('label');
+        label.innerHTML = `第 ${year} 年 數量：<span id="init${year}Val">1</span>`;
+        div.appendChild(label);
+
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.min = '0';
+        input.max = '100';
+        input.value = '1';
+        input.id = `init${year}`;
+        input.addEventListener('input', () => {
+          document.getElementById(`init${year}Val`).textContent = input.value;
+        });
+        div.appendChild(input);
+
+        initialCattleContainer.appendChild(div);
+      }
+    }
+
+    function calculateCattlePopulation() {
+      const yearsToPredict = parseInt(totalYears.value);
+      const m = parseInt(maturityYears.value);
+
+      const populations = [];
+      for (let i = 1; i <= m; i++) {
+        const value = document.getElementById(`init${i}`)?.value || 0;
+        populations.push(parseInt(value));
+      }
+
+      for (let n = m; n < yearsToPredict; n++) {
+        populations.push(populations[n - 1] + populations[n - m]);
+      }
+
+      const resultsTable = document.getElementById('resTable');
+      resultsTable.innerHTML = '';
+
+      populations.forEach((population, n) => {
+        resultsTable.innerHTML += `<tr><td>${n + 1}</td><td>${population}</td>`;
+      });
+
+      document.getElementById('results').style.display = 'block';
+    }
+
+    updateInitialCattleInputs();
+    calculateCattlePopulation();
+  </script>
+</body>
+</html>

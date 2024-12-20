@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>東華農場</title>
+  <style>
+    @font-face {
+      font-family: 'Minecraft';
+      src: url('https://fonts.cdnfonts.com/s/20444/MinecraftRegular-Bmg3.otf') format('opentype');
+    }
+
+    body {
+        font-family: 'Minecraft', Arial, sans-serif;
+        background-image: url('img/fm.jpg');
+        background-color: #ffffff;
+        background-size: cover;
+        background-repeat: no-repeat;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+    }
+
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 80px;
+      color: #ffffff;
+      margin: 40px 0 40px;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.637);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #ffffff00;
+      border: 3px solid #1d4602;
+      border-radius: 10px;
+      width: 220px;
+      padding: 20px;
+      text-align: center;
+      color: #ffffff;
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+    }
+
+    .card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .card-title {
+      font-size: 35px;
+      margin: 15px 0;
+      color: #382316;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-text {
+      font-size: 20px;
+      color: #000000;
+      margin-top: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #1d4602;
+      border: none;
+      border-radius: 5px;
+      color: #ffffff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background-color: #5da773;
+    }
+  </style>
+</head>
+<body>
+  <div class="title">東華農場</div>
+
+  <div class="main-container">
+    <div class="cards">
+      <a href="1.html" class="card">
+        <img id="card1" src="img/1.png" alt="每日工作排程" data-gif="img/1.gif">
+        <div class="card-title"><strong>每日工作排程</strong></div>
+        <div class="card-text"><strong>任務有序，高效掌控每日進程</strong></div>
+      </a>
+      <a href="2.html" class="card">
+        <img id="card2" src="img/2.png" alt="牛隻健康檢查" data-gif="img/2.gif">
+        <div class="card-title"><strong>牛隻健康檢查</strong></div>
+        <div class="card-text"><strong>全面檢測，守護牛隻健康</strong>。</div>
+      </a>
+      <a href="3.html" class="card">
+        <img id="card3" src="img/3.png" alt="產奶量分析" data-gif="img/3.gif">
+        <div class="card-title"><strong>產奶量分析</strong></div>
+        <div class="card-text"><strong>數據驅動，提升乳品生產效率。</strong></div>
+      </a>
+      <a href="4.html" class="card">
+        <img id="card4" src="img/4.png" alt="運送牛奶" data-gif="4.gif">
+        <div class="card-title"><strong>運送牛奶系統</strong></div>
+        <div class="card-text"><strong>優化運輸，確保牛奶新鮮直達</strong></div>
+      </a>
+      <a href="5.html" class="card">
+        <img id="card5" src="img/5.png" alt="牛隻管理" data-gif="img/5.gif">
+        <div class="card-title"><strong>牛隻管理系統</strong></div>
+        <div class="card-text"><strong>精準預測，規劃未來牛隻增長。</strong></div>
+      </a>
+    </div>
+    <button><b>了解更多</b></button>
+  </div>
+
+  <script>
+     document.querySelectorAll('.card img').forEach(img => {
+      const staticSrc = img.src; 
+      const gifSrc = img.dataset.gif; 
+
+      img.addEventListener('mouseenter', () => {
+        img.src = gifSrc;
+      });
+
+      img.addEventListener('mouseleave', () => {
+        img.src = staticSrc;
+      });
+    });
+  </script>
+</body>
+</html>

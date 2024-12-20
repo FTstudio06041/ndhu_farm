@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日任務管理</title>
+  <style>
+    @font-face {
+      font-family: 'Minecraft';
+      src: url('https://fonts.cdnfonts.com/s/20444/MinecraftRegular-Bmg3.otf') format('opentype');
+    }
+
+    body {
+      font-family: 'Minecraft', Arial, sans-serif;
+      background-image: url('img/fm.jpg');
+      background-color: #ffffff;
+      background-size: cover;
+      background-repeat: no-repeat;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 80px;
+      color: #ffffff;
+      margin: 50px 0 20px 0;
+    }
+
+    .outer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: 1200px;
+      gap: 20px;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .task-container, .task-list-container {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      flex: 1;
+      max-width: 500px;
+      font-size: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .task-container h2, .task-list-container h2 {
+      font-size: 50px;
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    #task-content {
+      font-size: 20px;
+      padding: 10px;
+      border: 2px solid #1d4602;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    #task-importance {
+      font-size: 20px;
+      padding: 10px;
+      border: 2px solid #1d4602;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      background-color: #1d4602;
+      border: none;
+      border-radius: 5px;
+      color: #ffffff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      align-self: center;
+    }
+
+    button:hover {
+      background-color: #5da773;
+    }
+
+    .task-list {
+      font-size: 20px;
+      margin-top: 10px;
+      border: 2px solid #1d4602;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+      width: 100%;  
+      height: auto;  
+    }
+
+    .task {
+      background: #00000081;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .task span {
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .task span.importance {
+      font-weight: normal;
+      display: inline-block;
+      font-size: 20px;
+      margin-left: 20px;
+      padding: 5px;
+      border-radius: 5px;
+      width: 80px;
+    }
+
+    .importance-0 { color: #28a745; }
+    .importance-1 { color: #ffe084; }
+    .importance-2 { color: #fd7e14; }
+    .importance-3 { color: #dc3545; }
+    .importance-4 { color: #007bff; }
+    .task {color: #ffffff;}
+
+    .remove-btn {
+      padding: 5px 15px;
+      font-size: 20px;
+      background-color: #ff4d4d;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .remove-btn:hover {
+      background-color: #ff99aa;
+    }
+
+    .back-arrow {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 30px;
+      height: 30px;
+      border-left: 5px solid rgb(255, 255, 255);
+      border-bottom: 5px solid rgb(255, 255, 255); 
+      transform: rotate(45deg);
+    }
+
+    .back-arrow:hover {
+      border-left-color: #555; 
+      border-bottom-color: #555; 
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="back-arrow" onclick="window.location.href='index.html'"></div>
+  <div class="title">每日任務管理</div>
+  <div class="outer-container">
+    <div class="main-container">
+      <div class="task-container">
+        <h2>新增任務</h2>
+        <form id="task-form">
+          <input type="text" id="task-content" placeholder="輸入任務內容" required>
+          <select id="task-importance">
+            <option value="0">不重要</option>
+            <option value="1">低</option>
+            <option value="2">中</option>
+            <option value="3">高</option>
+            <option value="4">特殊</option>
+          </select>
+          <button type="submit">新增任務</button>
+        </form>
+      </div>
+
+      <div class="task-list-container">
+        <h2>任務列表</h2>
+        <div class="task-list" id="task-list">
+          <div class="task" data-importance="0">
+            <span>mission1</span>
+            <span class="importance importance-0">不重要</span>
+            <button class="remove-btn">移除</button>
+          </div>
+          <div class="task" data-importance="1">
+            <span>mission2</span>
+            <span class="importance importance-1">低</span>
+            <button class="remove-btn">移除</button>
+          </div>
+          <div class="task" data-importance="1">
+            <span>mission3</span>
+            <span class="importance importance-1">低</span>
+            <button class="remove-btn">移除</button>
+          </div>
+          <div class="task" data-importance="2">
+            <span>mission4</span>
+            <span class="importance importance-2">中</span>
+            <button class="remove-btn">移除</button>
+          </div>
+          <div class="task" data-importance="3">
+            <span>mission5</span>
+            <span class="importance importance-3">高</span>
+            <button class="remove-btn">移除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function sortTasks() {
+      const taskList = document.getElementById('task-list');
+      const tasks = Array.from(taskList.querySelectorAll('.task'));
+
+      tasks.sort((a, b) => {
+        const importanceA = parseInt(a.getAttribute('data-importance'), 10);
+        const importanceB = parseInt(b.getAttribute('data-importance'), 10);
+        return importanceB - importanceA;
+      });
+
+      tasks.forEach(task => taskList.appendChild(task));
+    }
+
+    document.getElementById('task-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const taskContent = document.getElementById('task-content').value;
+      const taskImportance = document.getElementById('task-importance').value;
+      const importanceText = ['不重要', '低', '中', '高', '特殊'][taskImportance];
+
+      const taskElement = document.createElement('div');
+      taskElement.className = 'task';
+      taskElement.setAttribute('data-importance', taskImportance);
+      taskElement.innerHTML = `
+        <span>${taskContent}</span>
+        <span class="importance importance-${taskImportance}">${importanceText}</span>
+        <button class="remove-btn">移除</button>
+      `;
+
+      taskElement.querySelector('.remove-btn').addEventListener('click', function() {
+        taskElement.remove();
+        sortTasks();
+      });
+
+      document.getElementById('task-list').appendChild(taskElement);
+      document.getElementById('task-content').value = '';
+      document.getElementById('task-importance').value = '0';
+
+      sortTasks();
+    });
+
+    document.querySelectorAll('.remove-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        button.parentElement.remove();
+        sortTasks();
+      });
+    });
+
+    sortTasks();
+  </script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>產奶量分析</title>
+  <style>
+    @font-face {
+      font-family: 'Minecraft';
+      src: url('https://fonts.cdnfonts.com/s/20444/MinecraftRegular-Bmg3.otf') format('opentype');
+    }
+
+    body {
+      font-family: 'Minecraft', Arial, sans-serif;
+      background-image: url('img/fm.jpg');
+      background-color: #ffffff;
+      background-size: cover;
+      background-repeat: no-repeat;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 80px;
+      color: #ffffff;
+      margin: 50px 0 20px 0;
+    }
+
+    .outer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: 1200px;
+      gap: 20px;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .adjust-container, #results {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      flex: 1;
+      max-width: 500px;
+      font-size: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .adjust-container h2, #results h2 {
+      font-size: 50px;
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 20px;
+      border: 2px solid #1d4602;
+      border-radius: 5px;
+      font-size: 18px;
+      margin: 20px 0 10px 0;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    button {
+      padding: 15px 20px;
+      background-color: #1d4602;
+      border: none;
+      border-radius: 5px;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 20px;
+      align-self: center;
+    }
+
+    button:hover {
+      background-color: #5da773;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 2px solid #1d4602;
+      padding: 10px;
+      text-align: center;
+      background: #ffffff;
+      color: #333333;
+      font-size: 20px;
+    }
+
+    th {
+      background-color: #5da773;
+      font-weight: bold;
+    }
+
+    #results h3 {
+      text-align: center;
+      margin-top: 0;
+      color: #1d4602;
+      font-size: 50px;
+    }
+
+    .back-arrow {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 30px;
+      height: 30px;
+      border-left: 5px solid rgb(255, 255, 255);
+      border-bottom: 5px solid rgb(255, 255, 255); 
+      transform: rotate(45deg);
+    }
+
+    .back-arrow:hover {
+      border-left-color: #555; 
+      border-bottom-color: #555; 
+    }
+  </style>
+</head>
+<body>
+  <div class="back-arrow" onclick="window.location.href='index.html'"></div>
+  <div class="title">產奶量分析</div>
+  <div class="outer-container">
+    <div class="main-container">
+      <div class="adjust-container">
+        <h2>功能選單</h2>
+        <button onclick="findUnhealthyCows()">健康異常檢查</button>
+        <button onclick="findTopProducer()">產奶量分析</button>
+        <button onclick="findAllCows()">查詢所有牛隻</button>
+        <input type="text" id="cowId" placeholder="輸入牛隻編號">
+        <button onclick="findCowById()">查詢個別牛隻</button>
+      </div>
+
+      <div id="results">
+        <h2>查詢結果</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>耳標編號</th>
+              <th>產奶量 (公升)</th>
+              <th>健康狀況</th>
+            </tr>
+          </thead>
+          <tbody id="resultTable">
+            <!-- 表格數據將由 JavaScript 動態填入 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let cows = [];
+    fetch('cows.json')
+      .then(response => response.json())
+      .then(data => {
+        cows = data.cows;
+        findAllCows();  
+      })
+      .catch(error => console.error('Error loading cows.json:', error));
+
+    const resultTable = document.getElementById("resultTable");
+
+    function updateTable(data) {
+      resultTable.innerHTML = ""; 
+      data.forEach(cow => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${cow.id}</td>
+          <td>${cow.milk}</td>
+          <td>${cow.health}</td>
+        `;
+        resultTable.appendChild(row);
+      });
+    }
+
+    function findTopProducer() {
+      const topProducers = [...cows].sort((a, b) => b.milk - a.milk).slice(0, 5);
+      updateTable(topProducers);
+      document.getElementById("results").style.display = "block";
+    }
+
+    function findUnhealthyCows() {
+      const unhealthyCows = cows.filter(cow => cow.health !== "Healthy").sort((a, b) => a.id - b.id);
+      updateTable(unhealthyCows);
+      document.getElementById("results").style.display = "block";
+    }
+
+    function findAllCows() {
+      const allCows = [...cows].sort((a, b) => a.id - b.id);
+      updateTable(allCows);
+      document.getElementById("results").style.display = "block";
+    }
+
+    function findCowById() {
+      const cowId = parseInt(document.getElementById("cowId").value);
+      const cow = cows.find(c => c.id === cowId);
+      if (cow) {
+        updateTable([cow]);
+      } else {
+        resultTable.innerHTML = "<tr><td colspan='3'>找不到該耳標編號的牛隻！</td></tr>";
+      }
+      document.getElementById("results").style.display = "block";
+    }
+  </script>
+</body>
+</html>

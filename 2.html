@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>牛隻健康檢查</title>
+    <style>
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://fonts.cdnfonts.com/s/20444/MinecraftRegular-Bmg3.otf') format('opentype');
+        }
+
+        body {
+            font-family: 'Minecraft', Arial, sans-serif;
+            background-image: url('img/fm.jpg');
+            background-color: #ffffff;
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 80px;
+            color: #ffffff;
+            margin: 50px 0 20px 0;
+        }
+
+        .outer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+
+        .adjust-container, .queue-container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            font-size: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .adjust-container h2, .queue-container h2 {
+            font-size: 50px;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+
+        .queue-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            width: 100%;
+        }
+
+        #queueContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        button {
+            padding: 15px 20px;
+            background-color: #1d4602;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #5da773;
+        }
+
+        .cow {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #1d4602;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            min-width: 100px;
+            margin: 5px;
+        }
+
+        .cow:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 20px;
+            text-align: center;
+        }
+        
+        .back-arrow {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 30px;
+            height: 30px;
+            border-left: 5px solid rgb(255, 255, 255);
+            border-bottom: 5px solid rgb(255, 255, 255); 
+            transform: rotate(45deg);
+        }
+
+        .back-arrow:hover {
+            border-left-color: #555; 
+            border-bottom-color: #555; 
+        }
+    </style>
+</head>
+<body>
+    <div class="back-arrow" onclick="window.location.href='index.html'"></div>
+    <div class="title">牛隻健康檢查</div>
+    <div class="outer-container">
+        <div class="adjust-container">
+            <h2>輸入參數</h2>
+            <div>
+                <label>輸入牛隻總數：</label>
+                <input type="number" id="totalCows" min="1" placeholder="例如: 5">
+                <button onclick="initializeQueue()">設定牛隻</button>
+            </div>
+            <div>
+                <label>優先處理牛隻編號：</label>
+                <input type="text" id="priorityCows" placeholder="例如: 2,4">
+                <button onclick="setPriority()">設置優先順序</button>
+            </div>
+            <div>
+                <label>不需要檢查牛隻編號：</label>
+                <input type="text" id="skipCows" placeholder="例如: 3,5">
+                <button onclick="skipCows()">排除牛隻</button>
+            </div>
+            <button onclick="checkCow()">檢查下一隻牛 🐮</button>
+        </div>
+        <div class="queue-container">
+            <h2>目前牛隻佇列</h2>
+            <div id="queueContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let cowQueue = [];
+
+        function initializeQueue() {
+            const total = document.getElementById("totalCows").value;
+            if (total <= 0) {
+                alert("請輸入有效的牛隻數量！");
+                return;
+            }
+
+            cowQueue = [];
+            for (let i = 1; i <= total; i++) {
+                cowQueue.push(`牛 #${i}`);
+            }
+            updateQueueDisplay();
+        }
+
+        function setPriority() {
+            const input = document.getElementById("priorityCows").value;
+            if (!input) {
+                alert("請輸入要優先處理的牛隻編號！");
+                return;
+            }
+
+            const priorityList = input.split(',').map(num => `牛 #${parseInt(num.trim())}`);
+            const newQueue = [];
+
+            priorityList.forEach(cow => {
+                if (cowQueue.includes(cow)) {
+                    newQueue.push(cow);
+                    cowQueue = cowQueue.filter(item => item !== cow);
+                }
+            });
+
+            cowQueue = [...newQueue, ...cowQueue];
+            updateQueueDisplay();
+        }
+
+        function skipCows() {
+            const input = document.getElementById("skipCows").value;
+            if (!input) {
+                alert("請輸入不需要檢查的牛隻編號！");
+                return;
+            }
+
+            const skipList = input.split(',').map(num => `牛 #${parseInt(num.trim())}`);
+            cowQueue = cowQueue.filter(cow => !skipList.includes(cow));
+            updateQueueDisplay();
+        }
+
+        function checkCow() {
+            if (cowQueue.length === 0) {
+                alert("所有牛隻都已完成健康檢查！");
+                return;
+            }
+            const cow = cowQueue.shift();
+            alert(`${cow} 已完成健康檢查！`);
+            updateQueueDisplay();
+        }
+
+        function updateQueueDisplay() {
+            const container = document.getElementById("queueContainer");
+            container.innerHTML = "";
+            cowQueue.forEach(cow => {
+                const div = document.createElement("div");
+                div.className = "cow";
+                div.textContent = cow;
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
