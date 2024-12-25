@@ -1,0 +1,25 @@
+name: Auto Sync My Branch
+
+on:
+  push:
+    branches:
+      - main  # 當 main 分支有變更時觸發
+
+jobs:
+  sync-my-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Checkout my branch
+        run: git checkout my-feature-branch
+
+      - name: Merge main into my branch
+        run: |
+          git merge origin/main
+          git push origin my-feature-branch
