@@ -2,3 +2,4 @@
 題目：東部產業自動化程式  
 專題：東華農場  
 利用不同的資料結構幫助農場自動化  
+DEMO: https://ftstudio06041.github.io/ndhu_farm/
