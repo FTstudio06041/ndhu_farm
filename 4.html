@@ -180,30 +180,52 @@
   </div>
 
   <script>
-    document.getElementById('data-form').addEventListener('submit', function(event) {
-      event.preventDefault();
-      const milkWeights = document.getElementById('milkWeights').value;
-      const maxCapacity = parseInt(document.getElementById('maxCapacity').value, 10);
+    class Vector {
+    constructor(maxCapacity) {
+      this.maxCapacity = maxCapacity; // 卡車的最大載重量
+      this.weights = []; // 模擬的 vector 儲存牛奶重量
+      this.results = []; // 模擬的 vector 儲存分配結果
+    }
 
-      if (!milkWeights || !maxCapacity) {
-        return alert('請填寫所有欄位');
+    // 模擬 vector: 添加重量
+    addWeight(weight) {
+      this.weights.push(weight);
+    }
+
+    // 模擬 vector: 清空重量
+    clearWeights() {
+      this.weights = [];
+    }
+
+    // 模擬 vector: 清空結果
+    clearResults() {
+      this.results = [];
+    }
+
+    // 驗證輸入的有效性
+    validateInputs() {
+      if (!this.weights.length || !this.maxCapacity) {
+        return '請填寫所有欄位';
       }
 
-      const weights = milkWeights.split(',').map(Number);
-
-      const invalidWeight = weights.find(weight => weight > maxCapacity);
+      const invalidWeight = this.weights.find(weight => weight > this.maxCapacity);
       if (invalidWeight !== undefined) {
-        return alert(`重量 ${invalidWeight} 超過卡車的最大載重量，無法運送！`);
+        return `重量 ${invalidWeight} 超過卡車的最大載重量，無法運送！`;
       }
 
-      const results = [];
+      return null;
+    }
+
+    // 分配卡車邏輯
+    allocateTrucks() {
+      this.clearResults(); // 清空先前的分配結果
       let currentTruck = [];
       let currentWeight = 0;
       let truckCount = 1;
 
-      for (const weight of weights) {
-        if (currentWeight + weight > maxCapacity) {
-          results.push({ truck: truckCount++, items: currentTruck });
+      for (const weight of this.weights) {
+        if (currentWeight + weight > this.maxCapacity) {
+          this.results.push({ truck: truckCount++, items: currentTruck });
           currentTruck = [];
           currentWeight = 0;
         }
@@ -213,20 +235,50 @@
       }
 
       if (currentTruck.length > 0) {
-        results.push({ truck: truckCount, items: currentTruck });
+        this.results.push({ truck: truckCount, items: currentTruck });
       }
 
-      const resultsTable = document.getElementById('resultsTable');
-      resultsTable.innerHTML = '';
-      results.forEach(({ truck, items }) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${truck}</td><td>${items.join(', ')}</td>`;
-        resultsTable.appendChild(row);
-      });
+      return truckCount;
+    }
 
-      document.getElementById('totalTrucks').textContent = `共需 ${truckCount} 輛車輛。`;
-      document.getElementById('results').style.display = 'block';
+    // 模擬 vector: 取得所有結果
+    getResults() {
+      return this.results;
+    }
+  }
+
+  // 創建 Vector 實例
+  const allocator = new Vector(0);
+
+  document.getElementById('data-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const milkWeights = document.getElementById('milkWeights').value;
+    const maxCapacity = parseInt(document.getElementById('maxCapacity').value, 10);
+
+    allocator.clearWeights(); // 清空之前的重量
+    milkWeights.split(',').map(Number).forEach(weight => allocator.addWeight(weight)); // 使用類似 vector 的方式添加重量
+    allocator.maxCapacity = maxCapacity;
+
+    const validationError = allocator.validateInputs();
+    if (validationError) {
+      return alert(validationError);
+    }
+
+    const totalTrucks = allocator.allocateTrucks();
+    const results = allocator.getResults();
+
+    const resultsTable = document.getElementById('resultsTable');
+    resultsTable.innerHTML = '';
+    results.forEach(({ truck, items }) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${truck}</td><td>${items.join(', ')}</td>`;
+      resultsTable.appendChild(row);
     });
+
+    document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
+    document.getElementById('results').style.display = 'block';
+  });
   </script>
 </body>
 </html>
