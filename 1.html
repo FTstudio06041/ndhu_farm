@@ -129,8 +129,8 @@
       border-radius: 5px;
       padding: 10px;
       box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
-      width: 100%;  
-      height: auto;  
+      width: 100%;
+      height: auto;
     }
 
     .task {
@@ -222,87 +222,77 @@
 
       <div class="task-list-container">
         <h2>任務列表</h2>
-        <div class="task-list" id="task-list">
-          <div class="task" data-importance="0">
-            <span>mission1</span>
-            <span class="importance importance-0">不重要</span>
-            <button class="remove-btn">移除</button>
-          </div>
-          <div class="task" data-importance="1">
-            <span>mission2</span>
-            <span class="importance importance-1">低</span>
-            <button class="remove-btn">移除</button>
-          </div>
-          <div class="task" data-importance="1">
-            <span>mission3</span>
-            <span class="importance importance-1">低</span>
-            <button class="remove-btn">移除</button>
-          </div>
-          <div class="task" data-importance="2">
-            <span>mission4</span>
-            <span class="importance importance-2">中</span>
-            <button class="remove-btn">移除</button>
-          </div>
-          <div class="task" data-importance="3">
-            <span>mission5</span>
-            <span class="importance importance-3">高</span>
-            <button class="remove-btn">移除</button>
-          </div>
-        </div>
+        <div class="task-list" id="task-list"></div>
       </div>
     </div>
   </div>
 
   <script>
-    function sortTasks() {
+    class PriorityQueue {
+      constructor() {
+        this.tasks = [];
+      }
+
+      enqueue(task, priority) {
+        this.tasks.push({ task, priority });
+        this.tasks.sort((a, b) => b.priority - a.priority);
+      }
+
+      dequeue() {
+        return this.tasks.shift();
+      }
+
+      getAllTasks() {
+        return this.tasks;
+      }
+    }
+
+    const taskQueue = new PriorityQueue();
+
+    // 預設任務
+    taskQueue.enqueue("完成每日報表", 3); // 高
+    taskQueue.enqueue("檢查郵件", 1);    // 低
+    taskQueue.enqueue("參加會議", 2);    // 中
+    taskQueue.enqueue("團隊討論", 4);    // 特殊
+    taskQueue.enqueue("午休時間", 0);    // 不重要
+
+    function renderTaskList() {
       const taskList = document.getElementById('task-list');
-      const tasks = Array.from(taskList.querySelectorAll('.task'));
+      taskList.innerHTML = '';
 
-      tasks.sort((a, b) => {
-        const importanceA = parseInt(a.getAttribute('data-importance'), 10);
-        const importanceB = parseInt(b.getAttribute('data-importance'), 10);
-        return importanceB - importanceA;
+      taskQueue.getAllTasks().forEach(({ task, priority }) => {
+        const taskElement = document.createElement('div');
+        const importanceText = ['不重要', '低', '中', '高', '特殊'][priority];
+        taskElement.className = 'task';
+        taskElement.innerHTML = `
+          <span>${task}</span>
+          <span class="importance importance-${priority}">${importanceText}</span>
+          <button class="remove-btn">移除</button>
+        `;
+
+        taskElement.querySelector('.remove-btn').addEventListener('click', function() {
+          taskQueue.tasks = taskQueue.tasks.filter(t => t.task !== task);
+          renderTaskList();
+        });
+
+        taskList.appendChild(taskElement);
       });
-
-      tasks.forEach(task => taskList.appendChild(task));
     }
 
     document.getElementById('task-form').addEventListener('submit', function(event) {
       event.preventDefault();
 
       const taskContent = document.getElementById('task-content').value;
-      const taskImportance = document.getElementById('task-importance').value;
-      const importanceText = ['不重要', '低', '中', '高', '特殊'][taskImportance];
+      const taskImportance = parseInt(document.getElementById('task-importance').value, 10);
 
-      const taskElement = document.createElement('div');
-      taskElement.className = 'task';
-      taskElement.setAttribute('data-importance', taskImportance);
-      taskElement.innerHTML = `
-        <span>${taskContent}</span>
-        <span class="importance importance-${taskImportance}">${importanceText}</span>
-        <button class="remove-btn">移除</button>
-      `;
+      taskQueue.enqueue(taskContent, taskImportance);
+      renderTaskList();
 
-      taskElement.querySelector('.remove-btn').addEventListener('click', function() {
-        taskElement.remove();
-        sortTasks();
-      });
-
-      document.getElementById('task-list').appendChild(taskElement);
       document.getElementById('task-content').value = '';
       document.getElementById('task-importance').value = '0';
-
-      sortTasks();
     });
 
-    document.querySelectorAll('.remove-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        button.parentElement.remove();
-        sortTasks();
-      });
-    });
-
-    sortTasks();
+    document.addEventListener('DOMContentLoaded', renderTaskList);
   </script>
 </body>
 </html>
