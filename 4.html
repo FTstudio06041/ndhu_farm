@@ -200,60 +200,34 @@
         this.root = null;
       }
 
-      insert(id, milk, health) {
+      insertLevelOrder(id, milk, health) {
         const newNode = new TreeNode(id, milk, health);
-        if (this.root === null) {
+        if (!this.root) {
           this.root = newNode;
-        } else {
-          this.insertNode(this.root, newNode);
+          return;
         }
-      }
-
-      insertNode(node, newNode) {
-        if (newNode.id < node.id) {
-          if (node.left === null) {
+        const queue = [this.root];
+        while (queue.length > 0) {
+          const node = queue.shift();
+          if (!node.left) {
             node.left = newNode;
+            return;
           } else {
-            this.insertNode(node.left, newNode);
+            queue.push(node.left);
           }
-        } else {
-          if (node.right === null) {
+          if (!node.right) {
             node.right = newNode;
+            return;
           } else {
-            this.insertNode(node.right, newNode);
+            queue.push(node.right);
           }
         }
-      }
-
-      preorderTraversal(node, result = []) {
-        if (node === null) return result;
-        result.push(node);
-        this.preorderTraversal(node.left, result);
-        this.preorderTraversal(node.right, result);
-        return result;
-      }
-
-      inorderTraversal(node, result = []) {
-        if (node === null) return result;
-        this.inorderTraversal(node.left, result);
-        result.push(node);
-        this.inorderTraversal(node.right, result);
-        return result;
-      }
-
-      postorderTraversal(node, result = []) {
-        if (node === null) return result;
-        this.postorderTraversal(node.left, result);
-        this.postorderTraversal(node.right, result);
-        result.push(node);
-        return result;
       }
 
       levelOrderTraversal() {
         const result = [];
-        if (this.root === null) return result;
+        if (!this.root) return result;
         const queue = [this.root];
-
         while (queue.length > 0) {
           const node = queue.shift();
           result.push(node);
@@ -262,22 +236,39 @@
         }
         return result;
       }
+
+      preorderTraversal(node, result = []) {
+        if (node === null) return result;
+        result.push(node); 
+        this.preorderTraversal(node.left, result);
+        this.preorderTraversal(node.right, result);
+        return result;
+      }
+
+      postorderTraversal(node, result = []) {
+        if (node === null) return result;
+        this.postorderTraversal(node.left, result);
+        this.postorderTraversal(node.right, result);
+        result.push(node); 
+        return result;
+      }
     }
 
-    let tree = new BinaryTree();
+    const tree = new BinaryTree();
+    const cowMap = new Map(); // 儲存耳標編號對應的牛隻資料
 
     fetch('cows.json')
       .then(response => response.json())
       .then(data => {
         data.cows.forEach(cow => {
-          tree.insert(cow.id, cow.milk, cow.health);
+          tree.insertLevelOrder(cow.id, cow.milk, cow.health);
+          cowMap.set(cow.id, cow); // 使用 Map 儲存耳標編號 -> 牛隻資料
         });
-        findAllCows();  
+        findAllCows(); 
       })
       .catch(error => console.error('Error loading cows.json:', error));
 
     const resultTable = document.getElementById("resultTable");
-
     function updateTable(data) {
       resultTable.innerHTML = ""; 
       data.forEach(cow => {
@@ -291,18 +282,7 @@
       });
     }
 
-    function findTopProducer() {
-      const cowsSorted = tree.levelOrderTraversal().sort((a, b) => b.milk - a.milk).slice(0, 5);
-      updateTable(cowsSorted);
-      document.getElementById("results").style.display = "block";
-    }
-
-    function findUnhealthyCows() {
-      const unhealthyCows = tree.levelOrderTraversal().filter(cow => cow.health !== "Healthy");
-      updateTable(unhealthyCows);
-      document.getElementById("results").style.display = "block";
-    }
-
+    // 層序遍歷
     function findAllCows() {
       const allCows = tree.levelOrderTraversal();
       updateTable(allCows);
@@ -311,12 +291,28 @@
 
     function findCowById() {
       const cowId = parseInt(document.getElementById("cowId").value);
-      const cow = tree.levelOrderTraversal().find(c => c.id === cowId);
+      const cow = cowMap.get(cowId); // 使用 Map 快速查找
       if (cow) {
         updateTable([cow]);
       } else {
         resultTable.innerHTML = "<tr><td colspan='3'>找不到該耳標編號的牛隻！</td></tr>";
       }
+      document.getElementById("results").style.display = "block";
+    }
+
+    // 前序遍歷
+    function findUnhealthyCows() {
+      const unhealthyCows = tree.preorderTraversal(tree.root).filter(cow => cow.health !== "Healthy");
+      updateTable(unhealthyCows);
+      document.getElementById("results").style.display = "block";
+    }
+
+    // 後序遍歷
+    function findTopProducer() {
+      const topProducers = tree.postorderTraversal(tree.root)
+        .sort((a, b) => b.milk - a.milk)
+        .slice(0, 3);
+      updateTable(topProducers);
       document.getElementById("results").style.display = "block";
     }
   </script>
