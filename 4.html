@@ -145,19 +145,6 @@
       border-left-color: #555; 
       border-bottom-color: #555; 
     }
-
-    .order-container {
-      font-size: 20px;
-      margin-top: 20px;
-      width: 100%;
-    }
-
-    .order-container p {
-      font-size: 22px;
-      text-align: center;
-      color: #333;
-      margin: 10px 0;
-    }
   </style>
 </head>
 <body>
@@ -189,11 +176,6 @@
           <p id="totalTrucks"></p>
         </div>
       </div>
-    </div>
-
-    <div class="order-container" id="order-container" style="display:none;">
-      <h2>排列順序</h2>
-      <p id="orderList"></p>
     </div>
   </div>
 
@@ -255,10 +237,6 @@
       getResults() {
         return this.results;
       }
-
-      getOrderedWeights() {
-        return this.weights.sort((a, b) => b - a).join(', ');
-      }
     }
 
     const allocator = new Vector(0);
@@ -291,11 +269,6 @@
 
       document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
       document.getElementById('results').style.display = 'block';
-
-      // Display the order of items
-      const orderedWeights = allocator.getOrderedWeights();
-      document.getElementById('orderList').textContent = `排列順序：${orderedWeights}`;
-      document.getElementById('order-container').style.display = 'block';
     });
   </script>
 </body>
