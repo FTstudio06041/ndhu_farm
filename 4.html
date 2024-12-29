@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>運送牛奶系統</title>
   <style>
+    /* 樣式與先前相同 */
     @font-face {
       font-family: 'Minecraft';
       src: url('https://fonts.cdnfonts.com/s/20444/MinecraftRegular-Bmg3.otf') format('opentype');
@@ -214,26 +215,34 @@
 
       allocateTrucks() {
         this.clearResults();
-        let currentTruck = [];
-        let currentWeight = 0;
-        let truckCount = 1;
 
-        for (const weight of this.weights) {
-          if (currentWeight + weight > this.maxCapacity) {
-            this.results.push({ truck: truckCount++, items: currentTruck });
-            currentTruck = [];
-            currentWeight = 0;
+        // Step 1: Sort weights in descending order
+        const sortedWeights = [...this.weights].sort((a, b) => b - a);
+
+        const trucks = [];
+        sortedWeights.forEach(weight => {
+          let placed = false;
+
+          for (const truck of trucks) {
+            const currentWeight = truck.reduce((a, b) => a + b, 0);
+            if (currentWeight + weight <= this.maxCapacity) {
+              truck.push(weight);
+              placed = true;
+              break;
+            }
           }
 
-          currentTruck.push(weight);
-          currentWeight += weight;
-        }
+          if (!placed) {
+            trucks.push([weight]);
+          }
+        });
 
-        if (currentTruck.length > 0) {
-          this.results.push({ truck: truckCount, items: currentTruck });
-        }
+        this.results = trucks.map((truck, index) => ({
+          truck: index + 1,
+          items: truck,
+        }));
 
-        return truckCount;
+        return trucks.length;
       }
 
       getResults() {
