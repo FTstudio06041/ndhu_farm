@@ -1,15 +1,15 @@
 {
     "cows": [
-      { "id": 1, "milk": 35, "health": "Healthy" },
+      { "id": 9, "milk": 35, "health": "Healthy" },
       { "id": 2, "milk": 50, "health": "Slight injury" },
       { "id": 3, "milk": 25, "health": "Healthy" },
-      { "id": 4, "milk": 40, "health": "Vaccinated" },
+      { "id": 7, "milk": 40, "health": "Vaccinated" },
       { "id": 5, "milk": 30, "health": "Healthy" },
-      { "id": 6, "milk": 45, "health": "Healthy" },
-      { "id": 7, "milk": 38, "health": "Minor cold" },
+      { "id": 10, "milk": 45, "health": "Healthy" },
+      { "id": 4, "milk": 38, "health": "Minor cold" },
       { "id": 8, "milk": 33, "health": "Healthy" },
-      { "id": 9, "milk": 20, "health": "Injured leg" },
-      { "id": 10, "milk": 55, "health": "Vaccinated" },
+      { "id": 1, "milk": 20, "health": "Injured leg" },
+      { "id": 6, "milk": 55, "health": "Vaccinated" },
       { "id": 11, "milk": 37, "health": "Healthy" },
       { "id": 12, "milk": 28, "health": "Slight injury" }
     ]
