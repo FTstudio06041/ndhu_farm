@@ -242,10 +242,16 @@
         let truckCount = 0;
         let trucks = [];
 
+        // Show original weights
+        this.steps.push(`原本的數列：${this.weights.join(', ')}`);
+
         // Sort the weights from largest to smallest (best fit tries to minimize space left)
         const sortedWeights = [...this.weights].sort((a, b) => b - a);
 
-        // Best Fit Decreasing Algorithm
+        // Show sorted weights
+        this.steps.push(`重新排列的數列：${sortedWeights.join(', ')}`);
+
+        // Best Fit Algorithm - Improved
         for (const weight of sortedWeights) {
           let placed = false;
           let bestFitIndex = -1;
@@ -264,13 +270,13 @@
           if (bestFitIndex !== -1) {
             trucks[bestFitIndex].items.push(weight);
             trucks[bestFitIndex].totalWeight += weight;
-            this.steps.push(`車輛 ${bestFitIndex + 1} 添加重量 ${weight}`);
+            this.steps.push(`加入重量：${weight}，車輛 ${bestFitIndex + 1} 總重量：${trucks[bestFitIndex].totalWeight}`);
             placed = true;
           } else {
             // Create a new truck if no suitable one is found
             trucks.push({ items: [weight], totalWeight: weight });
             truckCount++;
-            this.steps.push(`創建新車輛 ${truckCount}，添加重量 ${weight}`);
+            this.steps.push(`新增車輛 ${truckCount}，加入重量：${weight}，車輛總重量：${weight}`);
           }
         }
 
