@@ -130,28 +130,6 @@
       font-weight: bold;
     }
 
-    .step-container {
-      background: rgba(255, 255, 255, 0.8);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-      flex: 1;
-      max-width: 500px;
-      font-size: 30px;
-      margin-top: 20px;
-    }
-
-    .step-container h3 {
-      font-size: 50px;
-      margin: 0 0 20px 0;
-      text-align: center;
-    }
-
-    .step-list {
-      list-style-type: none;
-      padding-left: 0;
-    }
-
     .back-arrow {
       position: absolute;
       top: 30px;
@@ -166,6 +144,20 @@
     .back-arrow:hover {
       border-left-color: #555; 
       border-bottom-color: #555; 
+    }
+
+    .step-container {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .step-container ul {
+      padding-left: 0;
+      list-style-type: none;
+    }
+
+    .step-container li {
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -196,13 +188,12 @@
             <tbody id="resultsTable"></tbody>
           </table>
           <p id="totalTrucks"></p>
+          <div class="step-container">
+            <h3>分配過程</h3>
+            <ul id="stepList"></ul>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="step-container">
-      <h3>分配過程</h3>
-      <ul id="stepList" class="step-list"></ul>
     </div>
   </div>
 
@@ -251,23 +242,29 @@
         let truckCount = 0;
         let trucks = [];
 
-        // Use Best Fit Algorithm for allocation
+        // Best Fit Algorithm - Improved
         for (const weight of this.weights) {
           let placed = false;
+          let bestFitIndex = -1;
+          let minRemainingCapacity = this.maxCapacity + 1;  // Track the smallest remaining capacity
 
           // Try to fit the weight into the existing trucks
           for (let i = 0; i < trucks.length; i++) {
-            if (trucks[i].totalWeight + weight <= this.maxCapacity) {
-              trucks[i].items.push(weight);
-              trucks[i].totalWeight += weight;
-              this.steps.push(`車輛 ${i + 1} 添加重量 ${weight}`);
-              placed = true;
-              break;
+            const remainingCapacity = this.maxCapacity - trucks[i].totalWeight;
+            if (remainingCapacity >= weight && remainingCapacity < minRemainingCapacity) {
+              bestFitIndex = i;
+              minRemainingCapacity = remainingCapacity;
             }
           }
 
-          // If it can't fit in any truck, create a new one
-          if (!placed) {
+          // If a suitable truck was found, place the weight there
+          if (bestFitIndex !== -1) {
+            trucks[bestFitIndex].items.push(weight);
+            trucks[bestFitIndex].totalWeight += weight;
+            this.steps.push(`車輛 ${bestFitIndex + 1} 添加重量 ${weight}`);
+            placed = true;
+          } else {
+            // Create a new truck if no suitable one is found
             trucks.push({ items: [weight], totalWeight: weight });
             truckCount++;
             this.steps.push(`創建新車輛 ${truckCount}，添加重量 ${weight}`);
@@ -310,9 +307,7 @@
 
       const totalTrucks = allocator.allocateTrucks();
       const results = allocator.getResults();
-      const steps = allocator.getSteps();
 
-      // Display the results
       const resultsTable = document.getElementById('resultsTable');
       resultsTable.innerHTML = '';
       results.forEach(({ truck, items }) => {
@@ -322,16 +317,17 @@
       });
 
       document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
-      document.getElementById('results').style.display = 'block';
 
       // Display the steps
       const stepList = document.getElementById('stepList');
       stepList.innerHTML = '';
-      steps.forEach(step => {
+      allocator.getSteps().forEach(step => {
         const li = document.createElement('li');
         li.textContent = step;
         stepList.appendChild(li);
       });
+
+      document.getElementById('results').style.display = 'block';
     });
   </script>
 </body>
