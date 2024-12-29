@@ -212,37 +212,37 @@
       return null;
     }
 
-    allocateTrucks() {
-      this.clearResults();
-      const sortedWeights = [...this.weights].sort((a, b) => b - a); // 從大到小排序
-      const trucks = [];
+  allocateTrucks() {
+    this.clearResults();
+    const trucks = []; // 儲存每輛卡車的重量列表
 
-      for (const weight of sortedWeights) {
-        let placed = false;
+    for (const weight of this.weights) {
+      let placed = false;
 
-        // 嘗試將重量分配到已有卡車中
-        for (const truck of trucks) {
-          const currentWeight = truck.reduce((sum, w) => sum + w, 0);
-          if (currentWeight + weight <= this.maxCapacity) {
-            truck.push(weight);
-            placed = true;
-            break;
-          }
-        }
-
-        // 若無法分配到現有卡車，則新增一輛卡車
-        if (!placed) {
-          trucks.push([weight]);
+      // 嘗試將重量放入已有的卡車
+      for (const truck of trucks) {
+        const truckWeight = truck.reduce((sum, w) => sum + w, 0);
+        if (truckWeight + weight <= this.maxCapacity) {
+          truck.push(weight);
+          placed = true;
+          break;
         }
       }
 
-      // 儲存結果
-      trucks.forEach((items, index) => {
-        this.results.push({ truck: index + 1, items });
-      });
-
-      return trucks.length;
+      // 若無法放入任何已有卡車，則新增一輛卡車
+      if (!placed) {
+        trucks.push([weight]);
+      }
     }
+
+    // 將結果儲存到 this.results
+    trucks.forEach((items, index) => {
+      this.results.push({ truck: index + 1, items });
+    });
+
+    return trucks.length;
+  }
+
 
 
   const allocator = new Vector(0);
