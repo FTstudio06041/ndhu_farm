@@ -214,33 +214,26 @@
 
       allocateTrucks() {
         this.clearResults();
-        const trucks = []; // 儲存每輛卡車的重量列表
+        let currentTruck = [];
+        let currentWeight = 0;
+        let truckCount = 1;
 
         for (const weight of this.weights) {
-          let placed = false;
-
-          // 嘗試將重量放入已有的卡車
-          for (const truck of trucks) {
-            const truckWeight = truck.reduce((sum, w) => sum + w, 0);
-            if (truckWeight + weight <= this.maxCapacity) {
-              truck.push(weight);
-              placed = true;
-              break;
-            }
+          if (currentWeight + weight > this.maxCapacity) {
+            this.results.push({ truck: truckCount++, items: currentTruck });
+            currentTruck = [];
+            currentWeight = 0;
           }
 
-          // 若無法放入任何已有卡車，則新增一輛卡車
-          if (!placed) {
-            trucks.push([weight]);
-          }
+          currentTruck.push(weight);
+          currentWeight += weight;
         }
 
-        // 將結果儲存到 this.results
-        trucks.forEach((items, index) => {
-          this.results.push({ truck: index + 1, items });
-        });
+        if (currentTruck.length > 0) {
+          this.results.push({ truck: truckCount, items: currentTruck });
+        }
 
-        return trucks.length;
+        return truckCount;
       }
 
       getResults() {
@@ -248,7 +241,6 @@
       }
     }
 
-    // 初始化分配器
     const allocator = new Vector(0);
 
     document.getElementById('data-form').addEventListener('submit', function(event) {
@@ -280,7 +272,6 @@
       document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
       document.getElementById('results').style.display = 'block';
     });
-
   </script>
 </body>
 </html>
