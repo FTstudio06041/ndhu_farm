@@ -242,8 +242,11 @@
         let truckCount = 0;
         let trucks = [];
 
-        // Best Fit Algorithm - Improved
-        for (const weight of this.weights) {
+        // Sort the weights from largest to smallest (best fit tries to minimize space left)
+        const sortedWeights = [...this.weights].sort((a, b) => b - a);
+
+        // Best Fit Decreasing Algorithm
+        for (const weight of sortedWeights) {
           let placed = false;
           let bestFitIndex = -1;
           let minRemainingCapacity = this.maxCapacity + 1;  // Track the smallest remaining capacity
@@ -290,7 +293,7 @@
 
     const allocator = new Vector(0);
 
-    document.getElementById('data-form').addEventListener('submit', function (event) {
+    document.getElementById('data-form').addEventListener('submit', function(event) {
       event.preventDefault();
 
       const milkWeights = document.getElementById('milkWeights').value;
