@@ -130,28 +130,6 @@
       font-weight: bold;
     }
 
-    .step-container {
-      background: rgba(255, 255, 255, 0.8);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-      flex: 1;
-      max-width: 500px;
-      font-size: 18px;
-      margin-top: 20px;
-    }
-
-    .step-container h3 {
-      font-size: 30px;
-      margin: 0 0 20px 0;
-      text-align: center;
-    }
-
-    .step-list {
-      list-style-type: none;
-      padding-left: 0;
-    }
-
     .back-arrow {
       position: absolute;
       top: 30px;
@@ -199,11 +177,6 @@
         </div>
       </div>
     </div>
-
-    <div class="step-container">
-      <h3>分配過程</h3>
-      <ul id="stepList" class="step-list"></ul>
-    </div>
   </div>
 
   <script>
@@ -212,7 +185,6 @@
         this.maxCapacity = maxCapacity;
         this.weights = [];
         this.results = [];
-        this.steps = []; // To store the steps for showing the process
       }
 
       addWeight(weight) {
@@ -225,10 +197,6 @@
 
       clearResults() {
         this.results = [];
-      }
-
-      clearSteps() {
-        this.steps = [];
       }
 
       validateInputs() {
@@ -246,7 +214,6 @@
 
       allocateTrucks() {
         this.clearResults();
-        this.clearSteps();
         this.weights.sort((a, b) => b - a); // Sort in descending order for better allocation
         let truckCount = 0;
 
@@ -254,15 +221,10 @@
           let currentTruck = [];
           let currentWeight = 0;
 
-          // Record step before allocation
-          this.steps.push(`車輛 ${truckCount + 1} 開始分配:`);
-
           for (let i = this.weights.length - 1; i >= 0; i--) {
             if (currentWeight + this.weights[i] <= this.maxCapacity) {
               currentWeight += this.weights[i];
               currentTruck.push(this.weights.splice(i, 1)[0]);
-              // Record each weight added to the truck
-              this.steps.push(`  - 添加重量: ${currentTruck[currentTruck.length - 1]}`);
             }
           }
 
@@ -274,10 +236,6 @@
 
       getResults() {
         return this.results;
-      }
-
-      getSteps() {
-        return this.steps;
       }
     }
 
@@ -300,9 +258,7 @@
 
       const totalTrucks = allocator.allocateTrucks();
       const results = allocator.getResults();
-      const steps = allocator.getSteps();
 
-      // Display the results
       const resultsTable = document.getElementById('resultsTable');
       resultsTable.innerHTML = '';
       results.forEach(({ truck, items }) => {
@@ -313,15 +269,6 @@
 
       document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
       document.getElementById('results').style.display = 'block';
-
-      // Display the steps
-      const stepList = document.getElementById('stepList');
-      stepList.innerHTML = '';
-      steps.forEach(step => {
-        const li = document.createElement('li');
-        li.textContent = step;
-        stepList.appendChild(li);
-      });
     });
   </script>
 </body>
