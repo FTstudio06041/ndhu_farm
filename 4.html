@@ -214,32 +214,36 @@
 
     allocateTrucks() {
       this.clearResults();
-      let currentTruck = [];
-      let currentWeight = 0;
-      let truckCount = 1;
+      const sortedWeights = [...this.weights].sort((a, b) => b - a); // 從大到小排序
+      const trucks = [];
 
-      for (const weight of this.weights) {
-        if (currentWeight + weight > this.maxCapacity) {
-          this.results.push({ truck: truckCount++, items: currentTruck });
-          currentTruck = [];
-          currentWeight = 0;
+      for (const weight of sortedWeights) {
+        let placed = false;
+
+        // 嘗試將重量分配到已有卡車中
+        for (const truck of trucks) {
+          const currentWeight = truck.reduce((sum, w) => sum + w, 0);
+          if (currentWeight + weight <= this.maxCapacity) {
+            truck.push(weight);
+            placed = true;
+            break;
+          }
         }
 
-        currentTruck.push(weight);
-        currentWeight += weight;
+        // 若無法分配到現有卡車，則新增一輛卡車
+        if (!placed) {
+          trucks.push([weight]);
+        }
       }
 
-      if (currentTruck.length > 0) {
-        this.results.push({ truck: truckCount, items: currentTruck });
-      }
+      // 儲存結果
+      trucks.forEach((items, index) => {
+        this.results.push({ truck: index + 1, items });
+      });
 
-      return truckCount;
+      return trucks.length;
     }
 
-    getResults() {
-      return this.results;
-    }
-  }
 
   const allocator = new Vector(0);
 
