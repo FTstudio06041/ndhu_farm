@@ -169,7 +169,7 @@
       <div class="task-container">
         <h2>輸入數據</h2>
         <form id="data-form">
-          <input type="text" id="milkWeights" placeholder="輸入牛奶重量組合 (例如: 30,20,50,40)" required>
+          <input type="text" id="milkWeights" placeholder="輸入牛奶重量組合 (例如: 40,70,30,60)" required>
           <input type="number" id="maxCapacity" placeholder="每輛車的最大載重量" required>
           <button type="submit">開始運算</button>
         </form>
@@ -203,7 +203,7 @@
         this.maxCapacity = maxCapacity;
         this.weights = [];
         this.results = [];
-        this.steps = []; // To store the steps for showing the process
+        this.steps = [];
       }
 
       addWeight(weight) {
@@ -242,22 +242,17 @@
         let truckCount = 0;
         let trucks = [];
 
-        // Show original weights
         this.steps.push(`原本的數列：${this.weights.join(', ')}`);
 
-        // Sort the weights from largest to smallest (best fit tries to minimize space left)
         const sortedWeights = [...this.weights].sort((a, b) => b - a);
 
-        // Show sorted weights
         this.steps.push(`重新排列的數列：${sortedWeights.join(', ')}`);
 
-        // Best Fit Algorithm - Improved
         for (const weight of sortedWeights) {
           let placed = false;
           let bestFitIndex = -1;
-          let minRemainingCapacity = this.maxCapacity + 1;  // Track the smallest remaining capacity
+          let minRemainingCapacity = this.maxCapacity + 1;
 
-          // Try to fit the weight into the existing trucks
           for (let i = 0; i < trucks.length; i++) {
             const remainingCapacity = this.maxCapacity - trucks[i].totalWeight;
             if (remainingCapacity >= weight && remainingCapacity < minRemainingCapacity) {
@@ -266,14 +261,13 @@
             }
           }
 
-          // If a suitable truck was found, place the weight there
           if (bestFitIndex !== -1) {
             trucks[bestFitIndex].items.push(weight);
             trucks[bestFitIndex].totalWeight += weight;
             this.steps.push(`加入重量：${weight}，車輛 ${bestFitIndex + 1} 總重量：${trucks[bestFitIndex].totalWeight}`);
             placed = true;
           } else {
-            // Create a new truck if no suitable one is found
+
             trucks.push({ items: [weight], totalWeight: weight });
             truckCount++;
             this.steps.push(`新增車輛 ${truckCount}，加入重量：${weight}，車輛總重量：${weight}`);
@@ -327,7 +321,6 @@
 
       document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
 
-      // Display the steps
       const stepList = document.getElementById('stepList');
       stepList.innerHTML = '';
       allocator.getSteps().forEach(step => {
