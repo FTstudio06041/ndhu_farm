@@ -5,7 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>運送牛奶系統</title>
   <style>
-    /* 样式與之前相同 */
+    @font-face {
+      font-family: 'Minecraft';
+      src: url('https://fonts.cdnfonts.com/s/20444/MinecraftRegular-Bmg3.otf') format('opentype');
+    }
+
+    body {
+      font-family: 'Minecraft', Arial, sans-serif;
+      background-image: url('img/fm.jpg');
+      background-color: #ffffff;
+      background-size: cover;
+      background-repeat: no-repeat;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 80px;
+      color: #ffffff;
+      margin: 50px 0 20px 0;
+    }
+
+    .outer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: 1200px;
+      gap: 20px;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .task-container, .task-list-container {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      flex: 1;
+      max-width: 500px;
+      font-size: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .task-container h2, .task-list-container h2 {
+      font-size: 50px;
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+
+    input, button {
+      font-size: 20px;
+      padding: 10px;
+      border: 2px solid #1d4602;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #1d4602;
+      color: #ffffff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #5da773;
+    }
+
+    .results-container {
+      font-size: 20px;
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 2px solid #1d4602;
+      padding: 10px;
+      text-align: center;
+      background: #ffffff;
+      color: #333333;
+      font-size: 20px;
+    }
+
+    th {
+      background-color: #5da773;
+      font-weight: bold;
+    }
+
+    .back-arrow {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 30px;
+      height: 30px;
+      border-left: 5px solid rgb(255, 255, 255);
+      border-bottom: 5px solid rgb(255, 255, 255); 
+      transform: rotate(45deg);
+    }
+
+    .back-arrow:hover {
+      border-left-color: #555; 
+      border-bottom-color: #555; 
+    }
   </style>
 </head>
 <body>
@@ -75,38 +214,24 @@
 
       allocateTrucks() {
         this.clearResults();
+        this.weights.sort((a, b) => b - a); // Sort in descending order for better allocation
+        let truckCount = 0;
 
-        // Step 1: Sort weights in descending order
-        const sortedWeights = [...this.weights].sort((a, b) => b - a);
+        while (this.weights.length > 0) {
+          let currentTruck = [];
+          let currentWeight = 0;
 
-        const trucks = [];
-        const truckCapacities = [];
-
-        // Step 2: Allocate weights
-        sortedWeights.forEach(weight => {
-          let placed = false;
-
-          for (let i = 0; i < trucks.length; i++) {
-            if (truckCapacities[i] + weight <= this.maxCapacity) {
-              trucks[i].push(weight);
-              truckCapacities[i] += weight;
-              placed = true;
-              break;
+          for (let i = this.weights.length - 1; i >= 0; i--) {
+            if (currentWeight + this.weights[i] <= this.maxCapacity) {
+              currentWeight += this.weights[i];
+              currentTruck.push(this.weights.splice(i, 1)[0]);
             }
           }
 
-          if (!placed) {
-            trucks.push([weight]);
-            truckCapacities.push(weight);
-          }
-        });
+          this.results.push({ truck: ++truckCount, items: currentTruck });
+        }
 
-        this.results = trucks.map((truck, index) => ({
-          truck: index + 1,
-          items: truck,
-        }));
-
-        return trucks.length;
+        return truckCount;
       }
 
       getResults() {
@@ -116,13 +241,13 @@
 
     const allocator = new Vector(0);
 
-    document.getElementById('data-form').addEventListener('submit', function(event) {
+    document.getElementById('data-form').addEventListener('submit', function (event) {
       event.preventDefault();
 
       const milkWeights = document.getElementById('milkWeights').value;
       const maxCapacity = parseInt(document.getElementById('maxCapacity').value, 10);
 
-      allocator.clearWeights(); 
+      allocator.clearWeights();
       milkWeights.split(',').map(Number).forEach(weight => allocator.addWeight(weight));
       allocator.maxCapacity = maxCapacity;
 
