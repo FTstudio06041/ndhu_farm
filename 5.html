@@ -221,65 +221,57 @@
     const totalYears = document.getElementById('y');
     const maturityYearsDisplay = document.getElementById('mDisplay');
     const totalYearsDisplay = document.getElementById('yDisplay');
-    const initialCattleContainer = document.getElementById('initCattle');
-
+    const firstYearInput = document.createElement('input');
+    const resultsTable = document.getElementById('resTable');
+  
     totalYears.addEventListener('input', () => totalYearsDisplay.textContent = totalYears.value);
-    maturityYears.addEventListener('input', updateInitialCattleInputs);
-
-    function updateInitialCattleInputs() {
-      const years = parseInt(maturityYears.value);
-      maturityYearsDisplay.textContent = years;
-
-      initialCattleContainer.innerHTML = '';
-      for (let year = 1; year <= years; year++) {
-        const div = document.createElement('div');
-        div.className = 'slider-container';
-
-        const label = document.createElement('label');
-        label.innerHTML = `第 ${year} 年 數量：<span id="init${year}Val">1</span>`;
-        div.appendChild(label);
-
-        const input = document.createElement('input');
-        input.type = 'range';
-        input.min = '0';
-        input.max = '100';
-        input.value = '1';
-        input.id = `init${year}`;
-        input.addEventListener('input', () => {
-          document.getElementById(`init${year}Val`).textContent = input.value;
-        });
-        div.appendChild(input);
-
-        initialCattleContainer.appendChild(div);
-      }
+    maturityYears.addEventListener('input', () => maturityYearsDisplay.textContent = maturityYears.value);
+ 
+    function createFirstYearInput() {
+      const container = document.getElementById('initCattle');
+      container.innerHTML = '';
+  
+      const div = document.createElement('div');
+      div.className = 'slider-container';
+  
+      const label = document.createElement('label');
+      label.innerHTML = `第一年數量：<span id="init1Val">1</span>`;
+      div.appendChild(label);
+  
+      firstYearInput.type = 'range';
+      firstYearInput.min = '0';
+      firstYearInput.max = '100';
+      firstYearInput.value = '1';
+      firstYearInput.id = 'init1';
+      firstYearInput.addEventListener('input', () => {
+        document.getElementById('init1Val').textContent = firstYearInput.value;
+      });
+      div.appendChild(firstYearInput);
+  
+      container.appendChild(div);
     }
-
+ 
     function calculateCattlePopulation() {
       const yearsToPredict = parseInt(totalYears.value);
       const m = parseInt(maturityYears.value);
-
-      const populations = [];
-      for (let i = 1; i <= m; i++) {
-        const value = document.getElementById(`init${i}`)?.value || 0;
-        populations.push(parseInt(value));
-      }
-
+      const firstYearPopulation = parseInt(firstYearInput.value);
+  
+      const populations = Array(m).fill(firstYearPopulation);
+  
       for (let n = m; n < yearsToPredict; n++) {
         populations.push(populations[n - 1] + populations[n - m]);
       }
-
-      const resultsTable = document.getElementById('resTable');
+  
       resultsTable.innerHTML = '';
-
       populations.forEach((population, n) => {
         resultsTable.innerHTML += `<tr><td>${n + 1}</td><td>${population}</td>`;
       });
-
+  
       document.getElementById('results').style.display = 'block';
     }
-
-    updateInitialCattleInputs();
+  
+    createFirstYearInput();
     calculateCattlePopulation();
-  </script>
+  </script>  
 </body>
 </html>
