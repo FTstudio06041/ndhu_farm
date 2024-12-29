@@ -181,101 +181,106 @@
 
   <script>
     class Vector {
-    constructor(maxCapacity) {
-      this.maxCapacity = maxCapacity;
-      this.weights = [];
-      this.results = [];
-    }
-
-    addWeight(weight) {
-      this.weights.push(weight);
-    }
-
-    clearWeights() {
-      this.weights = [];
-    }
-
-    clearResults() {
-      this.results = [];
-    }
-
-    validateInputs() {
-      if (!this.weights.length || !this.maxCapacity) {
-        return '請填寫所有欄位';
+      constructor(maxCapacity) {
+        this.maxCapacity = maxCapacity;
+        this.weights = [];
+        this.results = [];
       }
 
-      const invalidWeight = this.weights.find(weight => weight > this.maxCapacity);
-      if (invalidWeight !== undefined) {
-        return `重量 ${invalidWeight} 超過卡車的最大載重量，無法運送！`;
+      addWeight(weight) {
+        this.weights.push(weight);
       }
 
-      return null;
-    }
+      clearWeights() {
+        this.weights = [];
+      }
 
-  allocateTrucks() {
-    this.clearResults();
-    const trucks = []; // 儲存每輛卡車的重量列表
+      clearResults() {
+        this.results = [];
+      }
 
-    for (const weight of this.weights) {
-      let placed = false;
-
-      // 嘗試將重量放入已有的卡車
-      for (const truck of trucks) {
-        const truckWeight = truck.reduce((sum, w) => sum + w, 0);
-        if (truckWeight + weight <= this.maxCapacity) {
-          truck.push(weight);
-          placed = true;
-          break;
+      validateInputs() {
+        if (!this.weights.length || !this.maxCapacity) {
+          return '請填寫所有欄位';
         }
+
+        const invalidWeight = this.weights.find(weight => weight > this.maxCapacity);
+        if (invalidWeight !== undefined) {
+          return `重量 ${invalidWeight} 超過卡車的最大載重量，無法運送！`;
+        }
+
+        return null;
       }
 
-      // 若無法放入任何已有卡車，則新增一輛卡車
-      if (!placed) {
-        trucks.push([weight]);
+      allocateTrucks() {
+        this.clearResults();
+        const trucks = []; // 儲存每輛卡車的重量列表
+
+        for (const weight of this.weights) {
+          let placed = false;
+
+          // 嘗試將重量放入已有的卡車
+          for (const truck of trucks) {
+            const truckWeight = truck.reduce((sum, w) => sum + w, 0);
+            if (truckWeight + weight <= this.maxCapacity) {
+              truck.push(weight);
+              placed = true;
+              break;
+            }
+          }
+
+          // 若無法放入任何已有卡車，則新增一輛卡車
+          if (!placed) {
+            trucks.push([weight]);
+          }
+        }
+
+        // 將結果儲存到 this.results
+        trucks.forEach((items, index) => {
+          this.results.push({ truck: index + 1, items });
+        });
+
+        return trucks.length;
+      }
+
+      getResults() {
+        return this.results;
       }
     }
 
-    // 將結果儲存到 this.results
-    trucks.forEach((items, index) => {
-      this.results.push({ truck: index + 1, items });
+    // 初始化分配器
+    const allocator = new Vector(0);
+
+    document.getElementById('data-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const milkWeights = document.getElementById('milkWeights').value;
+      const maxCapacity = parseInt(document.getElementById('maxCapacity').value, 10);
+
+      allocator.clearWeights(); 
+      milkWeights.split(',').map(Number).forEach(weight => allocator.addWeight(weight));
+      allocator.maxCapacity = maxCapacity;
+
+      const validationError = allocator.validateInputs();
+      if (validationError) {
+        return alert(validationError);
+      }
+
+      const totalTrucks = allocator.allocateTrucks();
+      const results = allocator.getResults();
+
+      const resultsTable = document.getElementById('resultsTable');
+      resultsTable.innerHTML = '';
+      results.forEach(({ truck, items }) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${truck}</td><td>${items.join(', ')}</td>`;
+        resultsTable.appendChild(row);
+      });
+
+      document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
+      document.getElementById('results').style.display = 'block';
     });
 
-    return trucks.length;
-  }
-
-
-
-  const allocator = new Vector(0);
-
-  document.getElementById('data-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const milkWeights = document.getElementById('milkWeights').value;
-    const maxCapacity = parseInt(document.getElementById('maxCapacity').value, 10);
-
-    allocator.clearWeights(); 
-    milkWeights.split(',').map(Number).forEach(weight => allocator.addWeight(weight));
-    allocator.maxCapacity = maxCapacity;
-
-    const validationError = allocator.validateInputs();
-    if (validationError) {
-      return alert(validationError);
-    }
-
-    const totalTrucks = allocator.allocateTrucks();
-    const results = allocator.getResults();
-
-    const resultsTable = document.getElementById('resultsTable');
-    resultsTable.innerHTML = '';
-    results.forEach(({ truck, items }) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `<td>${truck}</td><td>${items.join(', ')}</td>`;
-      resultsTable.appendChild(row);
-    });
-
-    document.getElementById('totalTrucks').textContent = `共需 ${totalTrucks} 輛車輛。`;
-    document.getElementById('results').style.display = 'block';
-  });
   </script>
 </body>
 </html>
